@@ -1,5 +1,5 @@
 """
-ART PRO SYSTEM v6
+ART PRO SYSTEM v7
 Three calendars by geography:
   - ART_PRO_SLOVENIA.ics
   - ART_PRO_EU.ics
