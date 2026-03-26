@@ -1,50 +1,36 @@
-name: 🎨 ART PRO – Daily Scraper (3 calendars)
+name: 🎨 ART PRO SYSTEM – Dnevni scraper
 
 on:
   schedule:
-    - cron: '0 8 * * *'
-  workflow_dispatch:
+    - cron: '0 7 * * *'   # every day at 07:00 UTC (08:00 Ljubljana)
+  workflow_dispatch:        # manual trigger from GitHub UI
 
 jobs:
   scrape:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      pull-requests: write
 
     steps:
-      - name: 📥 Checkout repository
-        uses: actions/checkout@v6
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: 🐍 Python 3.11
+        uses: actions/setup-python@v5
         with:
-          fetch-depth: 0
+          python-version: '3.11'
 
-      - name: 🐍 Setup Python 3.12
-        uses: actions/setup-python@v6
-        with:
-          python-version: '3.12'
-          cache: 'pip'
+      - name: 📦 Namesti odvisnosti
+        run: pip install -r requirements.txt
 
-      - name: 📦 Install dependencies
-        run: |
-          pip install --upgrade pip
-          pip install -r requirements.txt
-
-      - name: 🌐 Install Playwright browsers
-        run: python -m playwright install chromium --with-deps
-
-      - name: 🔍 Run Scraper
+      - name: 🔍 Zaženi scraper
         run: python scraper.py
 
-      - name: 📤 Create Pull Request with updated calendars
-        uses: peter-evans/create-pull-request@v8
-        with:
-          commit-message: "🔄 Auto-update all 3 calendars $(date +'%Y-%m-%d %H:%M UTC')"
-          title: "🎨 Daily ART PRO update – $(date +'%Y-%m-%d')"
-          body: "Updated Slovenia, EU and Global calendars."
-          branch: auto-update-art-pro-calendars
-          delete-branch: true
-          base: main
-          add-paths: |
-            ART_PRO_SLOVENIA.ics
-            ART_PRO_EU.ics
-            ART_PRO_GLOBAL.ics
+      - name: 📤 Push .ics datoteke
+        run: |
+          git config user.name "ART PRO BOT"
+          git config user.email "bot@artprosystem"
+          git pull --rebase origin main
+          git add ART_PRO_SLOVENIA.ics ART_PRO_EU.ics ART_PRO_GLOBAL.ics
+          git diff --staged --quiet || git commit -m "🔄 Auto-update $(date +'%Y-%m-%d %H:%M')"
+          git push --force-with-lease origin main
