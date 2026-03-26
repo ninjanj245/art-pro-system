@@ -196,13 +196,14 @@ def make_alarms():
     ]
     blocks = []
     for trigger, desc in reminders:
-        blocks.append("\r\n".join([
+        lines = [
             "BEGIN:VALARM",
-            f"TRIGGER:{trigger}",
+            "TRIGGER:" + trigger,
             "ACTION:DISPLAY",
-            f"DESCRIPTION:{desc}",
+            "DESCRIPTION:" + desc,
             "END:VALARM",
-        ]))
+        ]
+        blocks.append("\r\n".join(lines))
     return "\r\n".join(blocks)
 
 def make_vevent(ev):
@@ -659,4 +660,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
